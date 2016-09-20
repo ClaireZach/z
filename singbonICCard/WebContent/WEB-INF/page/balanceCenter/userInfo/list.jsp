@@ -102,12 +102,12 @@ $(function() {
 						</select>
 					</td>
 					<td align="left">
-						<input type="text" name="beginDate" value="${beginDate}" readonly="readonly"class="date" size="18"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input type="text" name="beginDate" value="${beginDate}" readonly="readonly"class="date"datefmt="yyyy-MM-dd HH:mm:ss" size="18"/><a class="inputDateButton" href="javascript:;">选择</a>
 					</td>
 					<td align="left">
 						
 						&nbsp;- 
-						<input type="text" name="endDate" value="${endDate}" readonly="readonly"class="date" size="18"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input type="text" name="endDate" value="${endDate}" readonly="readonly"class="date"datefmt="yyyy-MM-dd HH:mm:ss" size="18"/><a class="inputDateButton" href="javascript:;">选择</a>
 					</td>
 					<td align="left">
 						
