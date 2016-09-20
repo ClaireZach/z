@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.systemManager.systemSetting.PosParamGroupDAO">
+	<resultMap id="posParamGroup" type="com.singbon.entity.PosParamGroup">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.PosParamGroup" id="posParamGroup2" />
+	<cache eviction="FIFO" size="1" readOnly="true"/>
+	<insert id="insert">
+		insert into posParamGroup (companyId,groupName,subsidyReset,subsidyFirst,enableCardMinFare,enableTimeLimitFare,enableDayLimitFare,enableDiscount,enableMeal,bound)
+			select #{companyId},#{groupName},subsidyReset,subsidyFirst,enableCardMinFare,enableTimeLimitFare,enableDayLimitFare,enableDiscount,enableMeal,bound from posParamGroupBase
+	</insert>
+	<update id="update" parameterMap="posParamGroup2">
+		update posParamGroup set 
+		<if test="groupName!=null">
+			groupName=#{groupName}
+		</if>
+		<if test="groupName==null">
+			subsidyReset=#{subsidyReset},subsidyFirst=#{subsidyFirst},enableCardMinFare=#{enableCardMinFare},enableTimeLimitFare=#{enableTimeLimitFare},enableDayLimitFare=#{enableDayLimitFare},enableDiscount=#{enableDiscount},enableMeal=#{enableMeal},bound=#{bound}		
+		</if>
+		where id=#{id}
+	</update>
+	<delete id="delete">
+		delete from posParamGroup where id=#{id}
+	</delete>
+	<select id="selectById" resultMap="posParamGroup">
+		select * from posParamGroup where id=#{id}
+	</select>
+	<select id="selectListByCompanyId" resultMap="posParamGroup">
+		select * from posParamGroup where companyId=#{companyId}
+	</select>
+	<select id="selectCountWithPos" resultType="java.lang.Integer">
+		select count(*) count from device where deviceType=2 and groupId=#{groupId}
+	</select>
+</mapper>

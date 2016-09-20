@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.systemManager.SubsidyDAO">
+	<resultMap id="subsidy" type="com.singbon.entity.Subsidy">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.Subsidy" id="subsidy2"></parameterMap>
+	<insert id="insert">
+		insert into subsidy (companyId,userId,subsidyFare,subsidyVersion,invalidDate,subsidyStatus)
+		select #{companyId},userId,0,#{subsidyVersion},#{invalidDate},#{subsidyStatus} from (
+			<foreach collection="userIds" item="item" index="index" separator="union">  
+    		 select #{item} userId
+			</foreach>
+		) t where t.userId not in (select userId from subsidy where companyId=#{companyId})
+	</insert>
+	<insert id="importSubsidy">
+		insert into subsidy (companyId,userId,subsidyFare,subsidyVersion,invalidDate,subsidyStatus)
+		values (#{companyId},#{userId},#{subsidyFare},#{subsidyVersion},#{invalidDate},#{status})
+	</insert>
+	<update id="addFare">
+		update subsidy set subsidyFare=#{subsidyFare} where companyId=#{companyId} and subsidyStatus=0
+	</update>
+	<update id="update">
+		update subsidy set subsidyFare=#{subsidyFare} where id=#{id}
+	</update>
+	<update id="autoFare">
+		update subsidy s,user u,discount d set s.subsidyFare=d.subsidy where s.userId=u.userId and u.cardTypeId=d.discountType and s.companyId=#{companyId} and s.subsidyStatus!=2
+	</update>
+	<update id="generateSubsidy">
+		update subsidy set subsidyVersion=#{subsidyVersion},invalidDate=#{invalidDate},subsidyStatus=1 where companyId=#{companyId}
+	</update>
+	<update id="transferSubsidy">
+	    insert subsidyhistory (userId,companyId,subsidyFare,subsidyVersion,invalidDate,subsidyStatus)
+	    select userId,companyId,subsidyFare,subsidyVersion,invalidDate,subsidyStatus from subsidy where companyId=#{companyId}
+	</update>
+	<update id="deleteAll">
+	    delete from Subsidy where companyId=#{companyId}
+	</update>
+	<delete id="delete" >
+		delete from Subsidy where id in (		
+		<foreach collection="array" item="item" index="index" separator=",">  
+    		(#{item})
+		</foreach>
+		)    </delete>
+  	<select id="selectSubsidyInfo" resultType="java.util.Map">
+		select subsidyVersion,invalidDate from subsidy where companyId=#{companyId} and subsidyStatus!=0 limit 1
+	</select>
+  	<select id="selectUserSubsidyInfo" resultType="java.util.Map">
+		select (select userId from user where companyId=#{companyId} and userNO=#{userNO}) userId,(select s.id from user u,subsidy s where u.companyId=#{companyId} and s.companyId=#{companyId} and u.userId=s.userId and u.userNO=#{userNO}) id
+	</select>
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.AttendanceRecordDAO">
+	<resultMap id="attendanceRecord" type="com.singbon.entity.AttendanceRecord">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.AttendanceRecord" id="attendanceRecord2" />
+	
+	<insert id="insert" parameterMap="attendanceRecord2" statementType="CALLABLE">
+        {CALL insertAttendanceRecord(
+        	#{companyId,mode=IN,jdbcType=INTEGER},
+        	#{userId,mode=IN,jdbcType=BIGINT},
+        	#{cardNO,mode=IN,jdbcType=BIGINT},
+        	#{opTime,mode=IN,jdbcType=VARCHAR},
+        	#{status,mode=IN,jdbcType=INTEGER},
+        	#{result,mode=OUT,jdbcType=INTEGER},
+        	#{username,mode=OUT,jdbcType=VARCHAR},
+        	#{openIds,mode=OUT,jdbcType=VARCHAR},
+        	#{mobiles,mode=OUT,jdbcType=VARCHAR}
+        )}
+    </insert>
+</mapper>

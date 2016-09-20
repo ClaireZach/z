@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.systemManager.DeviceDAO">
+	<resultMap id="device" type="com.singbon.entity.Device">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.Device" id="device2" />
+	<cache eviction="FIFO" size="2000" readOnly="true"/>
+
+	<insert id="insert" parameterMap="device2" useGeneratedKeys="true" keyProperty="id">
+		insert into device (companyId,deptId,paramGroupId,deviceName,deviceNum,deviceType,enable,sn,entranceType)
+		values (#{companyId},#{deptId},#{paramGroupId},#{deviceName},#{deviceNum},#{deviceType},#{enable},#{sn},#{entranceType})
+	</insert>
+	<update id="update" parameterMap="device2">
+		update device set paramGroupId=#{paramGroupId},deviceName=#{deviceName},deviceNum=#{deviceNum},deviceType=#{deviceType},transferId=#{transferId},enable=#{enable},sn=#{sn},entranceType=#{entranceType}
+		where id=#{id}
+	</update>
+	<delete id="delete">
+		delete from device where id=#{id}
+	</delete>
+	<select id="selectById" resultMap="device">
+		select * from device where id=#{id}
+	</select>
+<!-- 	添加修改机器验证 -->
+	<select id="selectCountByInfo" resultType="java.util.Map" parameterMap="device2" useCache="false">
+		select 
+			(select count(*) from device where companyId=#{companyId} and deviceNum=#{deviceNum}
+			<if test="deviceType==2 or deviceType==3">
+			      and deviceType in (2,3)
+			</if>
+			<if test="deviceType!=2 and deviceType!=3">
+			      and deviceType = #{deviceType}
+			</if>
+			<if test="id!=null">
+			     and id!=#{id}
+			</if>
+			) numCount,
+			(select count(*) from device where sn=#{sn}
+			<if test="id!=null">
+			     and id!=#{id}
+			</if>
+			) snCount
+	</select>
+	<select id="selectDeviceListByCompanyId" resultMap="device" useCache="false">
+		select id,companyId,deptId,paramGroupId,deviceName,deviceNum,deviceType,transferId,enable,sn,case when ifnull(transferId,0) =0 then sn else (select sn from device where id=d.transferId) end transferSn
+		 from device d where companyId=#{companyId} and deviceType in (
+		<foreach collection="deviceTypes" item="item" index="index" separator=",">  
+    		#{item}
+		</foreach>
+		)
+		<if test="onlyEnable == 1">
+			 and enable=1
+		</if>
+		order by deviceNum
+	</select>
+	<select id="selectPosListByDeptId" resultMap="device" useCache="false">
+		select id,companyId,deptId,paramGroupId,deviceName,deviceNum,deviceType,transferId,entranceType,enable,sn,case when ifnull(transferId,0) =0 then sn else (select sn from device where id=d.transferId) end transferSn
+		 from device d where deviceType between 2 and 3 and deptId=#{deptId}
+		<if test="onlyEnable == 1">
+			 and enable=1
+		</if>
+	</select>
+<!-- 	查询读卡机被引用数量 -->
+	<select id="selectSysUserCountByDeviceId" resultType="java.lang.Integer" useCache="false">
+		select count(*) count from sysUser where deviceId=#{deviceId}		
+	</select>
+<!-- 	查询中转设备被引用数量 -->
+	<select id="selectPosCountByTransferId" resultType="java.lang.Integer" useCache="false">
+		select count(*) count from device where transferId=#{transferId}		
+	</select>
+<!-- 	系统启动加载用 -->
+	<select id="selectAllList" resultMap="device" useCache="false">
+		select * from device
+	</select>
+</mapper>

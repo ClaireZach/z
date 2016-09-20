@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.systemManager.systemSetting.UserDeptDAO">
+	<resultMap id="userDept" type="com.singbon.entity.UserDept">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.UserDept" id="userDept2" />
+	<cache eviction="FIFO" size="2000" readOnly="true"/>
+	<insert id="insert" parameterMap="userDept2">
+		insert into userDept (companyId,deptName,parentId,batchId) values (#{companyId},#{deptName},#{parentId},#{batchId})
+	</insert>
+	<update id="update" parameterMap="userDept2">
+		update userDept set deptName=#{deptName},batchId=#{batchId} where id=#{id}
+	</update>
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from userDept where id=#{0}
+	</delete>
+	<select id="selectById" resultMap="userDept">
+		select * from userDept where id=#{id}
+	</select>
+	<select id="selectByParentId" resultType="java.util.HashMap" useCache="false">
+		select deptName,batchName,beginDate,endDate from userDept d,batch b where d.companyId=#{companyId} and d.parentId=#{parentId}
+		and d.batchId=b.id
+	</select>
+	<select id="selectListByCompanyId" resultMap="userDept">
+		select * from userDept where companyId=#{companyId}
+	</select>
+</mapper>

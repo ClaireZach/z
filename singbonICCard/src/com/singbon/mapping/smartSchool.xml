@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.systemManager.SmartSchoolDAO">
+	<resultMap id="smartSchoolAdmin" type="com.singbon.entity.SmartSchoolAdmin">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.SmartSchoolAdmin" id="smartSchoolAdmin2"></parameterMap>
+<!-- 	<cache eviction="FIFO" size="1000" readOnly="true"/> -->
+	<!-- 	添加管理员-->
+	<insert id="insert" parameterMap="smartSchoolAdmin2">
+		insert into smartSchoolAdmin (companyId,loginName,adminName,loginPwd,isAdmin,weixinLimit,remainingWeixin,shortLimit,remainingShort,remark)
+		values (#{companyId},#{loginName},#{adminName},#{loginPwd},#{isAdmin},#{weixinLimit},#{weixinLimit},#{shortLimit},#{shortLimit},#{remark})
+	</insert>
+	<update id="update" parameterMap="smartSchoolAdmin2">
+		update smartSchoolAdmin set 
+		<if test="deptIds==null">
+			loginName=#{loginName},adminName=#{adminName},loginPwd=#{loginPwd},isAdmin=#{isAdmin},weixinLimit=#{weixinLimit},remainingWeixin=#{remainingWeixin},shortLimit=#{shortLimit},remainingShort=#{remainingShort},remark=#{remark}
+		</if>
+		<if test="deptIds!=null">
+			deptIds=#{deptIds}	
+		</if>
+		where id=#{id}
+	</update>
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from smartSchoolAdmin where id=#{id}		
+	</delete>
+	<select id="selectListByCompanyId" resultMap="smartSchoolAdmin">
+		select * from smartSchoolAdmin where companyId=#{companyId}
+	</select>
+</mapper>

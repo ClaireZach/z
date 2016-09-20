@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.CardRecordDAO">
+	<resultMap id="cardRecord" type="com.singbon.entity.CardRecord">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.CardRecord" id="cardRecord2" />
+	<insert id="insert" parameterMap="cardRecord2">
+		insert into cardRecord (companyId,operId,userId,cardNO,cardSN,recordType,opFare,oddFare,subsidyOddFare,cardOddFare,cardSubsidyOddFare,opCount,subsidyOpCount,cardOpCount,cardSubsidyOpCount,opTime)
+		values (#{companyId},#{operId},#{userId},#{cardNO},#{cardSN},#{recordType},#{opFare},#{oddFare},#{subsidyOddFare},#{cardOddFare},#{cardSubsidyOddFare},#{opCount},#{subsidyOpCount},#{cardOpCount},#{cardSubsidyOpCount},NOW())
+	</insert>
+</mapper>

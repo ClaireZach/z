@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.BalanceRecordDAO">
+	<resultMap id="balanceRecord" type="com.singbon.entity.BalanceRecord">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.BalanceRecord" id="balanceRecord2" />
+	
+	<select id="insert" parameterMap="balanceRecord2">
+       insert into balancerecord (companyId,deptId,operId,deptName,totalOpCount,totalOpFare,discountFare,honchonCount,honchonFare,recordTypes,beginDate,endDate,froms)
+		values(#{companyId},#{deptId},#{operId},#{deptName},#{totalOpCount},#{totalOpFare},#{discountFare},#{honchonCount},#{honchonFare},#{recordTypes},#{beginDate},#{endDate},#{froms})
+    </select>
+</mapper>

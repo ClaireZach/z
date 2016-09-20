@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.UserDAO">
+	<resultMap id="user" type="com.singbon.entity.User">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.User" id="user2" />
+	<insert id="insert" parameterMap="user2" useGeneratedKeys="true" keyProperty="userId">
+		insert into user
+		(companyId,deptId,username,shortName,userNO,sex,cardID,cardNO,cardSN,cardSeq,mobile1,mobile2,cardTypeId,status,beginDate,endDate,cardMakeDate,consumePwd,totalFare,oddFare,opCount,giveFare,preOpFare,cardDeposit)
+		values
+		(#{companyId},#{deptId},#{username},#{shortName},#{userNO},#{sex},#{cardID},#{cardNO},#{cardSN},#{cardSeq},#{mobile1},#{mobile2},#{cardTypeId},#{status},#{beginDate},#{endDate},#{cardMakeDate},#{consumePwd},#{totalFare},#{oddFare},#{opCount},#{giveFare},#{preOpFare},#{cardDeposit})
+	</insert>
+	<update id="update" parameterMap="user2">
+		update user set
+		username=#{username},shortName=#{shortName},userNO=#{userNO},sex=#{sex},cardID=#{cardID},mobile1=#{mobile1},mobile2=#{mobile2},cardTypeId=#{cardTypeId},endDate=#{endDate},consumePwd=#{consumePwd},giveFare=#{giveFare},preOpFare=#{preOpFare}
+		where userId=#{userId}
+	</update>
+	<update id="infoCard" parameterMap="user2">
+		update user set username=#{username},shortName=#{shortName},userNO=#{userNO},cardID=#{cardID},cardNO=#{cardNO},cardTypeId=#{cardTypeId},consumePwd=#{consumePwd},cardNO=#{cardNO},cardSN=#{cardSN},cardSeq=1,status=241,beginDate=#{beginDate},endDate=#{endDate},cardMakeDate=now(),totalFare=#{totalFare},oddFare=#{oddFare},opCount=#{opCount},cardDeposit=#{cardDeposit}
+		where userId=#{userId}
+	</update>
+	<update id="remakeCard" parameterMap="user2">
+		update user set cardNO=#{cardNO},cardSN=#{cardSN},cardSeq=#{cardSeq},status=241 where userId=#{userId}
+	</update>
+	<update id="unloss" parameterMap="user2">
+		update user set cardNO=#{cardNO},status=241 where userId=#{userId}
+	</update>
+	<update id="changeStatus">
+		update user set status=#{status} where userId=#{userId}
+	</update>
+	<update id="offUserInfoWithInfo">
+		update user set status=244,cardSN=null where userId=#{userId}
+	</update>
+	<update id="changeNewCard">
+		update user set cardNO=#{cardNO},cardSN=#{cardSN},cardSeq=cardSeq+1 where userId=#{userId}
+	</update>
+	<update id="updateByCard" parameterMap="user2">
+		update user set endDate=#{endDate},status=#{status},cardSeq=#{cardSeq},cardTypeId=#{cardTypeId},totalFare=#{totalFare},
+		oddFare=#{oddFare},opCount=#{opCount},subsidyOddFare=#{subsidyOddFare},subsidyOpCount=#{subsidyOpCount},subsidyVersion=#{subsidyVersion}
+		where userId=#{userId}
+	</update>
+	<update id="changeToNewDept">
+		update user set deptId=#{toDeptId} where userId in (		
+		<foreach collection="userIds" item="item" index="index" separator=",">  
+    		(#{item})
+		</foreach>
+		)
+	</update>
+	<update id="changeFromDeptToNew">
+		update user set deptId=#{toDeptId} where deptId=#{fromDeptId}
+	</update>
+	<update id="changeFare">
+		update user set totalFare=totalFare+#{allOpFare},oddFare=oddFare+#{allOpFare},opCount=opCount+1
+		<if test="off">
+		    ,status=244 
+		</if>
+		where userId=#{userId}
+	</update>
+	<delete id="delete">
+		delete from user where status=0 and userId in (
+		<foreach collection="userIds" item="item" index="index" separator=",">  
+    		(#{item})
+		</foreach>
+		)
+	</delete>
+	<select id="selectByUserId" resultMap="user">
+		select * from user where userId=#{userId}
+	</select>
+	<select id="selectByUserIdCardSN" resultMap="user">
+		select * from user where companyId=#{companyId} and cardSN=#{cardSN}
+<!-- 		select * from user where companyId=#{companyId} and userId=#{userId} and cardSN=#{cardSN} -->
+	</select>
+	<select id="selectNoCardByDeptId" resultMap="user">
+		select * from user where status=0 and deptId=#{deptId}
+	</select>
+	<select id="selectMaxCardNO" resultType="java.lang.Long">
+		select ifnull(max(cardNO),0)+1 cardNO from user where companyId=#{companyId}
+	</select>
+	<select id="selectCountByCardSN" resultType="java.lang.Integer">
+		select count(userId) from user where companyId=#{companyId} and cardSN=#{cardSN}
+	</select>
+	<select id="selectCountByUserNO" resultType="java.lang.Integer">
+		select count(userId) from user where companyId=#{companyId} and userNO=#{userNO}
+	</select>
+	<select id="selectCountByUserNOUserId" resultType="java.lang.Integer">
+		select count(userId) from user where companyId=#{companyId} and userNO=#{userNO} and userId!=#{userId}
+	</select>
+	<select id="selectByCondition" resultMap="user">
+		select * from user
+		<where>
+			<if test="deptId!=null and deptId > 0">
+				and deptId=#{deptId}
+			</if>
+			<if test="searchStr!=null">
+				and (
+				username like concat('%',#{searchStr},'%')
+				or shortName like concat('%',#{searchStr},'%')
+				or userNO like concat('%',#{searchStr},'%')
+				)
+			</if>
+		</where>
+	</select>
+</mapper>

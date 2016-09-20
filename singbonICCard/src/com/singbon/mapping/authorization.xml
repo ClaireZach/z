@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.systemManager.AuthorizationDAO">
+	<resultMap id="group" type="com.singbon.entity.AuthGroup">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.AuthGroup" id="group2"></parameterMap>
+	<resultMap id="groupUser" type="com.singbon.entity.AuthGroupUser">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.AuthGroupUser" id="groupUser2"></parameterMap>
+	<cache eviction="FIFO" size="1000" readOnly="true"/>
+<!-- 	授权分组 -->
+	<select id="selectGroup" resultMap="group">
+		select * from authGroup where companyId=#{companyId}
+	</select>
+	<insert id="insertGroup" parameterMap="group2">
+		insert into authGroup
+		(companyId,groupName,remark,roles) values (#{companyId},#{groupName},#{remark},#{roles})
+	</insert>
+	<update id="updateGroup" parameterMap="group2">
+		update authGroup set
+		groupName=#{groupName},remark=#{remark},roles=#{roles} where id=#{id}
+	</update>
+	<delete id="deleteGroup">
+		delete from authGroup where id=#{id}
+	</delete>
+	<insert id="insertGroupUser" parameterMap="groupUser2">
+		insert into authGroupUser (operId,groupId) values 
+		<foreach collection="list" item="item" index="index" separator=",">  
+    		(#{item.operId},#{item.groupId})
+		</foreach>
+	</insert>
+
+	<delete id="deleteGroupUser">
+		delete from authGroupUser where operId=#{operId}
+	</delete>
+	
+	<select id="selectGroupUserCount" resultType="java.lang.Integer" useCache="false">
+		select count(*) from authGroupUser where groupId=#{groupId}
+	</select>
+	<select id="selectGroupUserList" resultType="java.util.Map" useCache="false">
+		select s.operId,s.loginName,GROUP_CONCAT(a.groupId) groupIds from sysuser s left join authGroupUser a on s.operId=a.operId where
+		companyId=#{companyId} group by s.operId
+	</select>
+	<select id="selectRolesByOperId" resultType="java.lang.String" useCache="false">
+		select roles from sysUser u left join authGroupUser a on u.operId=a.operId left join authGroup g on g.id=a.groupId where u.operId=#{operId}
+	</select>
+	
+</mapper>

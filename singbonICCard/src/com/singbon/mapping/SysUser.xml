@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.SysUserDAO">
+	<resultMap id="sysUser" type="com.singbon.entity.SysUser">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.SysUser" id="sysUser2" />
+	<cache eviction="FIFO" size="2000" readOnly="true"/>
+<!-- 	添加系统用户 -->
+	<insert id="insert" parameterMap="sysUser2">
+		insert into sysUser (companyId,loginName,loginPwd,deviceId)
+		values (#{companyId},#{loginName},#{loginPwd},#{deviceId})
+	</insert>
+	<update id="update" parameterMap="sysUser2">
+		update sysUser set loginName=#{loginName},loginPwd=#{loginPwd},deviceId=#{deviceId}
+		where operId=#{operId}
+	</update>
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from sysUser where operId=#{operId}		
+	</delete>
+<!-- 	登录 -->
+	<select id="login" resultMap="sysUser" useCache="false">
+		select u.* from sysuser u,company c where u.companyId=c.id and u.loginName =#{loginName} and u.loginPwd=#{loginPwd} and c.companyName =#{companyName}
+		 and (c.invalidDate is null or c.invalidDate='' or c.invalidDate>=substr(NOW(),1,10))
+	</select>
+<!-- 	列表 -->
+	<select id="selectListByCompanyId" resultType="java.util.Map" useCache="false">
+		select operId,loginName,loginPwd,deviceId,ifnull(deviceName,'无') deviceName from sysUser u left join device d on u.deviceId=d.id where u.companyId=#{companyId}
+	</select>
+<!-- 	 获取出纳员列表 -->
+	<select id="selectCashierList" resultMap="sysUser" useCache="false">
+		select operId,loginName from sysUser where companyId=#{companyId}
+	</select>
+</mapper>

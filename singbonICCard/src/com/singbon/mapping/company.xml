@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.CompanyDAO">
+	<resultMap id="company" type="com.singbon.entity.Company">
+	</resultMap>
+	<parameterMap type="com.singbon.entity.Company" id="company2" />
+	<cache eviction="FIFO" size="2000" readOnly="true"/>
+	
+	<insert id="insert" parameterMap="company2" useGeneratedKeys="true" keyProperty="id">
+		insert into company (companyName,serialNumber,authNumber,baseSection,invalidDate,heartInterval,uploadInterval,uploadErrTime,accessTimeout,transferInterval,transferUpgradeInterval,blackInterval,appId,mchId,mchKey,
+			weixinLimit,remainingWeixin,shortLimit,remainingShort,allowEntranceMessage,allowPCSavingMessage,allowWeixinSavingMessage,enable)
+			values (#{companyName},#{serialNumber},#{authNumber},#{baseSection},#{invalidDate},10,10,10,10,2000,300,1000,#{appId},#{mchId},#{mchKey},#{weixinLimit},#{weixinLimit},#{shortLimit},#{shortLimit},#{allowEntranceMessage},#{allowPCSavingMessage},#{allowWeixinSavingMessage},#{enable})
+	</insert>
+	<select id="insertInit" statementType="CALLABLE">
+        {CALL insertInit(#{companyId,mode=IN,jdbcType=INTEGER})}
+    </select>
+	
+	<update id="updateAdmin" parameterMap="company2">
+		update company set companyName=#{companyName},serialNumber=#{serialNumber},authNumber=#{authNumber},baseSection=#{baseSection},invalidDate=#{invalidDate},appId=#{appId},mchId=#{mchId},mchKey=#{mchKey},
+			weixinLimit=#{weixinLimit},remainingWeixin=#{remainingWeixin},shortLimit=#{shortLimit},remainingShort=#{remainingShort},allowEntranceMessage=#{allowEntranceMessage},allowPCSavingMessage=#{allowPCSavingMessage},allowWeixinSavingMessage=#{allowWeixinSavingMessage},enable=#{enable}
+			where id=#{id}
+	</update>
+	<update id="update" parameterMap="company2">
+		update company set companyName=#{companyName},baseSection=#{baseSection},heartInterval=#{heartInterval},uploadInterval=#{uploadInterval},uploadErrTime=#{uploadErrTime},accessTimeout=#{accessTimeout},transferInterval=#{transferInterval},transferUpgradeInterval=#{transferUpgradeInterval},blackInterval=#{blackInterval}
+		where id=#{id}
+	</update>
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from company where id=#{0}
+	</delete>
+	<select id="selectById" resultMap="company" useCache="false">
+		select id,companyName,serialNumber,authNumber,baseSection,heartInterval,uploadInterval,uploadErrTime,accessTimeout,transferInterval,transferUpgradeInterval,blackInterval,invalidDate,subsidyVersion,subsidyInvalidDate,ifnull(lastBatchNum,0) lastBatchNum,ifnull(lastBlackNum,0) lastBlackNum 
+			from (select id,companyName,serialNumber,authNumber,baseSection,heartInterval,uploadInterval,uploadErrTime,accessTimeout,transferInterval,transferUpgradeInterval,blackInterval,invalidDate,
+					(select ifnull(max(subsidyVersion),0) from (select subsidyVersion from subsidy where companyId=#{id} union select subsidyVersion from subsidyhistory where companyId=#{id}) s) subsidyVersion,
+					(select invalidDate from subsidy where companyId=c.id order by subsidyVersion desc limit 1) subsidyInvalidDate,
+					(select batchId from batchblack where companyId=c.id order by id desc limit 1) lastBatchNum,
+					(select cardNO from cardblack where companyId=c.id order by id desc limit 1) lastBlackNum 
+					from company c where id=#{id}) t
+	</select>
+	<select id="selectByObject" resultMap="company">
+		select * from company c where id=#{id}
+	</select>
+	<!-- 	添加单位验证 -->
+	<select id="selectCountByInfo" resultType="java.lang.Integer" parameterMap="company2" useCache="false">
+		select count(*) count from company where companyName=#{companyName}
+			<if test="id!=null">
+			     and id!=#{id}
+			</if>
+	</select>
+	<select id="selectAllList" resultMap="company" useCache="false">
+	    select id,ifnull(lastBatchNum,0) lastBatchNum,ifnull(lastBlackNum,0) lastBlackNum 
+			from (select id,
+					(select batchId from batchblack where companyId=c.id order by id desc limit 1) lastBatchNum,
+					(select cardNO from cardblack where companyId=c.id order by id desc limit 1) lastBlackNum 
+					from company c) t;
+	</select>
+</mapper>

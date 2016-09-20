@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- 引入属性文件 -->
+	<context:property-placeholder location="classpath:config.properties" />
+	<!-- 包(自动注入) -->
+	<!-- <context:component-scan base-package="com.singbon"> -->
+	<!-- <context:exclude-filter type="regex" -->
+	<!-- expression=".*controller$" /> -->
+	<!-- </context:component-scan> -->
+
+	<context:component-scan base-package="com.singbon.service" />
+	<import resource="spring-custom-security.xml" />
+	<import resource="spring-mybatis.xml" />
+	<bean id="jdbcUtil" class="com.singbon.util.JdbcUtil" />
+
+	<!-- 启动触发器的配置开始 -->
+	<bean name="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="myJobTrigger" />
+			</list>
+		</property>
+	</bean>  
+    <!-- 启动触发器的配置结束 -->  
+  
+    <!-- 调度的配置开始 -->  
+    <!-- quartz-2.x的配置 -->
+	<bean id="myJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<ref bean="myJobDetail" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0 0 * * ?</value>
+		</property>
+	</bean>  
+    <!-- 调度的配置结束 -->  
+  
+    <!-- job的配置开始 -->
+	<bean id="myJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="baseDAO" />
+		</property>
+		<property name="targetMethod">
+			<value>initWeixinShortNextDay</value>
+		</property>
+	</bean>  
+    <!-- job的配置结束 -->
+</beans>

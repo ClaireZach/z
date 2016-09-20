@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.singbon.dao.BaseDAO">
+	<parameterMap type="com.singbon.entity.OpenIdsAndMobiles" id="openIdsAndMobiles" />
+	<select id="selectBySql" resultType="java.util.Map">
+		${sql}
+	</select>
+	<select id="selectListBySql" resultType="java.util.Map">
+		${sql}
+	</select>
+	<update id="updateSql">
+		${sql}
+	</update>
+	<update id="initWeixinShortSystemStart" statementType="CALLABLE">
+		{CALL initWeixinShort(1)}
+	</update>
+	<update id="initWeixinShortNextDay" statementType="CALLABLE">
+		{CALL initWeixinShort(0)}
+	</update>
+	<select id="selectOpenIdsAndMobiles" statementType="CALLABLE" parameterMap="openIdsAndMobiles">
+		{CALL selectOpenIdsAndMobiles(
+			#{companyId,mode=IN,jdbcType=INTEGER},
+			#{loginName,mode=IN,jdbcType=VARCHAR},
+			#{userId,mode=IN,jdbcType=BIGINT},
+			#{messageType,mode=IN,jdbcType=INTEGER},
+			#{weixinCharge,mode=IN,jdbcType=INTEGER},
+			#{version,mode=IN,jdbcType=INTEGER},
+			#{result,mode=OUT,jdbcType=INTEGER},
+			#{username,mode=OUT,jdbcType=VARCHAR},
+			#{openIds,mode=OUT,jdbcType=VARCHAR},
+			#{mobiles,mode=OUT,jdbcType=VARCHAR}
+		)}
+	</select>
+</mapper>
